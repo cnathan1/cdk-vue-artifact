@@ -1,0 +1,35 @@
+{
+  "name": "cdk-vue-artifact",
+  "version": "0.1.0",
+  "bin": {
+    "cdk-vue-artifact": "bin/cdk-vue-artifact.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": ""
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "1.111.0",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.14.0",
+    "aws-cdk": "^1.111.0",
+    "jest": "^27.0.6",
+    "ts-jest": "^27.0.3",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-cloudfront": "1.111.0",
+    "@aws-cdk/aws-cloudfront-origins": "1.111.0",
+    "@aws-cdk/aws-codepipeline": "1.111.0",
+    "@aws-cdk/aws-codebuild": "1.111.0",
+    "@aws-cdk/aws-codepipeline-actions": "1.111.0",
+    "@aws-cdk/aws-secretsmanager": "1.111.0",
+    "@aws-cdk/aws-sns": "1.111.0",
+    "@aws-cdk/aws-s3": "1.111.0",
+    "@aws-cdk/core": "1.111.0",
+    "source-map-support": "^0.5.19"
+  }
+}
