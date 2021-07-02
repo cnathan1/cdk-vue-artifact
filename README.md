@@ -22,19 +22,21 @@
     `npm run build`
 8. Optionally run this command if you want to see generated CloudFormation template: 
     `cdk synth`
-9. Deploy your cdk stack: 
+9. Bootstrap the 'us-east-1' region for cdk:  
+   `cdk bootstrap aws://<AWS_ACCOUNT_ID>/us-east-1`
+10. Deploy your cdk stack: 
     `cdk deploy --parameters githubRepoName=<your-github-repo-name> --parameters githubBranch=<your-github-repo-branch> --parameters githubOwner=<your-github-owner-name> --parameters emailNotifications=<your-email-id>`
-10. Once the cdk stack is deployed, you will see an output like this with stack ARN:
+11. Once the cdk stack is deployed, you will see an output like this with stack ARN:
 
     ✅  CdkVueArtifactStack
 
     Stack ARN:
     arn:aws:cloudformation:<region>:<account-id>:stack/CdkVueArtifactStack/<stack-id>
-11. Clone the github repo
-12. Commit the contents of Amazon code repo to your github repo
-13. Navigate to your Pipeline in your AWS Codepipeline to check if it is running and make sure you approve when it reaches approval stage
-14. Once it is approved and deployed to S3 bucket, Navigate to Amazon CloudFront console to see the distribution is deployed.
-15. Navigate to CloudFront Domain name to test if the app is deployed.
+12. Clone the github repo
+13. Commit the contents of Amazon code repo to your github repo
+14. Navigate to your Pipeline in your AWS Codepipeline to check if it is running and make sure you approve when it reaches approval stage
+15. Once it is approved and deployed to S3 bucket, Navigate to Amazon CloudFront console to see the distribution is deployed.
+16. Navigate to CloudFront Domain name to test if the app is deployed.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 

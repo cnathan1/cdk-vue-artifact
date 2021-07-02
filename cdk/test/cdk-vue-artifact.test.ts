@@ -1,6 +1,6 @@
 import { expect as expectCDK, matchTemplate, MatchStyle } from '@aws-cdk/assert';
 import * as cdk from '@aws-cdk/core';
-import * as CdkVueArtifact from '../src/cdk-vue-artifact-stack';
+import * as CdkVueArtifact from '../lib/cdk-vue-artifact-stack';
 
 test('Empty Stack', () => {
     const app = new cdk.App();

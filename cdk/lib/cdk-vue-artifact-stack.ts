@@ -51,7 +51,7 @@ export class CdkVueArtifactStack extends cdk.Stack {
 
         const oai = new OriginAccessIdentity(this, 'OriginAccessIdentity', {comment: "Origin Access Identity for Origin S3 bucket"});
         const edgeFunction = new EdgeFunction(this, 'BGEdgeFunction', {
-            code: Code.fromAsset("lambda/ab-lambda-function.js"),
+            code: Code.fromAsset("lib/lambda"),
             handler: "ab-lambda-function.handler",
             runtime: Runtime.NODEJS_14_X
         });
