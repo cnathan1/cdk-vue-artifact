@@ -1,6 +1,7 @@
 'use strict';
 
 exports.handler = (event, context, callback) => {
+    console.log('Starting Lambda@Edge function for A/B testing.');
     const request = event.Records[0].cf.request;
     const headers = request.headers;
 

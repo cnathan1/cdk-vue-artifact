@@ -44,18 +44,20 @@ export class CdkVueArtifactStack extends cdk.Stack {
         // Creating S3 bucket with name vue-component-bucket
         const deployBucket = new s3.Bucket(this, 'VueComponentsBucket', {
             versioned: false,
-            bucketName: `vue-component-bucket-${region}-${accountNumber}`,
+            bucketName: `vue-component-bucket-${this.region}-${this.account}`,
             publicReadAccess: false,
             removalPolicy: core.RemovalPolicy.DESTROY
         });
 
         const oai = new OriginAccessIdentity(this, 'OriginAccessIdentity', {comment: "Origin Access Identity for Origin S3 bucket"});
+        deployBucket.grantRead(oai);
+
         const edgeFunction = new EdgeFunction(this, 'BGEdgeFunction', {
             code: Code.fromAsset("lib/lambda"),
             handler: "ab-lambda-function.handler",
             runtime: Runtime.NODEJS_14_X
         });
-        const distribution = new Distribution(this, 'VueComponentDistribution', {
+        new Distribution(this, 'VueComponentDistribution', {
             defaultBehavior: {
                 origin: new S3Origin(
                     deployBucket,
