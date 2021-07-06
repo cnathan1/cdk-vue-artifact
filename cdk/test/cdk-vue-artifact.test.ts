@@ -1,4 +1,4 @@
-import { expect as expectCDK, matchTemplate, MatchStyle } from '@aws-cdk/assert';
+import {expect, haveResource} from '@aws-cdk/assert';
 import * as cdk from '@aws-cdk/core';
 import * as CdkVueArtifact from '../lib/cdk-vue-artifact-stack';
 
@@ -11,8 +11,5 @@ test('Empty Stack', () => {
             region: 'us-east-1'
         }
     });
-    // THEN
-    expectCDK(stack).to(matchTemplate({
-      "Resources": {}
-    }, MatchStyle.EXACT))
+    expect(stack).to(haveResource('AWS::CodePipeline::Pipeline'))
 });
