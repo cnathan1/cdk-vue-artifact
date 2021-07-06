@@ -6,18 +6,18 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
-    <script src="counter-app.js"></script>
-    <script src="addition-app.js"></script>
+    <script src="vue-wc-counter-app.js"></script>
+    <script src="vue-wc-addition-app.js"></script>
   </head>
   <body>
     <noscript>
       <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div>
-        <counter-app id="counter"></counter-app>
+        <vue-wc-counter-app id="counter"></vue-wc-counter-app>
     </div>
     <div>
-        <addition-app id="addition"></addition-app>
+        <vue-wc-addition-app id="addition"></vue-wc-addition-app>
     </div>
     <!-- built files will be auto injected -->
   </body>

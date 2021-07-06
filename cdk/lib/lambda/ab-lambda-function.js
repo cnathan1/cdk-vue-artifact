@@ -1,19 +1,20 @@
 'use strict';
 
 exports.handler = (event, context, callback) => {
-    console.log('Starting Lambda@Edge function for A/B testing.');
     const request = event.Records[0].cf.request;
+    console.log('Lambda@Edge Request: %j', request);
     const headers = request.headers;
 
-    if (request.uri !== '/' || request.uri !== '/index.html') {
+    if (request.uri !== "/" && request.uri !== "/index.html") {
         // do not process if this is not an A-B test request
+        console.log('Ignoring request with URI: %s', request.uri);
         callback(null, request);
         return;
     }
 
     const cookieExperimentA = 'X-Experiment-Name=A';
     const cookieExperimentB = 'X-Experiment-Name=B';
-    const pathExperimentA = 'index.html';
+    const pathExperimentA = '/index.html';
     const pathExperimentB = '/experiment-group/index.html';
 
     /*
