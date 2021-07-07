@@ -1,20 +1,25 @@
+#!/usr/bin/env node
 'use strict';
 
 exports.handler = (event, context, callback) => {
     const request = event.Records[0].cf.request;
+    // Output the request to CloudWatch
     console.log('Lambda@Edge Request: %j', request);
     const headers = request.headers;
 
+    // Do not process if this is not targeting the distribution root file.
     if (request.uri !== "/" && request.uri !== "/index.html") {
-        // do not process if this is not an A-B test request
         console.log('Ignoring request with URI: %s', request.uri);
         callback(null, request);
         return;
     }
 
+    // Name of cookie to check for. Application will be decided randomly when not present.
     const cookieExperimentA = 'X-Experiment-Name=A';
     const cookieExperimentB = 'X-Experiment-Name=B';
+    // Primary application version.
     const pathExperimentA = '/index.html';
+    // Experimental application version.
     const pathExperimentB = '/experiment-group/index.html';
 
     /*
@@ -48,6 +53,7 @@ exports.handler = (event, context, callback) => {
         }
     }
 
+    // When there is no cookie, then randomly decide which app version will be used.
     if (!experimentUri) {
         console.log('Experiment cookie has not been found. Throwing dice...');
         if (Math.random() < 0.75) {
@@ -57,6 +63,7 @@ exports.handler = (event, context, callback) => {
         }
     }
 
+    // Output the final request URI.
     request.uri = experimentUri;
     console.log(`Request uri set to "${request.uri}"`);
     callback(null, request);

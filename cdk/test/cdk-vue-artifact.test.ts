@@ -1,6 +1,6 @@
 import {expect, haveResource} from '@aws-cdk/assert';
 import {App} from '@aws-cdk/core';
-import {CdkVueApplicationPipeline} from '../lib/cdk-vue-artifact-stack';
+import {CdkVueApplicationPipeline} from '../lib/cdk-vue-application-pipeline';
 
 test('Empty Stack', () => {
     const app = new App();
