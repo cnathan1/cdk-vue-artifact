@@ -1,11 +1,11 @@
 import {expect, haveResource} from '@aws-cdk/assert';
-import * as cdk from '@aws-cdk/core';
-import * as CdkVueArtifact from '../lib/cdk-vue-artifact-stack';
+import {App} from '@aws-cdk/core';
+import {CdkVueApplicationPipeline} from '../lib/cdk-vue-artifact-stack';
 
 test('Empty Stack', () => {
-    const app = new cdk.App();
+    const app = new App();
     // WHEN
-    const stack = new CdkVueArtifact.CdkVueArtifactStack(app, 'MyTestStack', {
+    const stack = new CdkVueApplicationPipeline(app, 'MyTestStack', {
         env: {
             account: 'test',
             region: 'us-east-1'
