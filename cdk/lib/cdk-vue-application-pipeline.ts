@@ -73,7 +73,7 @@ export class CdkVueApplicationPipeline extends Stack {
                     phases: {
                         install: {
                             "runtime-versions": {
-                                nodejs: 14
+                                nodejs: 12
                             }
                         },
                         "pre_build": {
@@ -99,7 +99,7 @@ export class CdkVueApplicationPipeline extends Stack {
                     }
                 }),
                 environment: {
-                    buildImage: LinuxBuildImage.AMAZON_LINUX_2
+                    buildImage: LinuxBuildImage.AMAZON_LINUX_2_3
                 }
             }),
             runOrder: 1
