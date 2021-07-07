@@ -56,8 +56,7 @@ export class CdkVueApplicationPipeline extends Stack {
                 oauthToken: githubRepoToken,
                 trigger: GitHubTrigger.WEBHOOK,
                 runOrder: 1
-            }),
-            selfMutating: true
+            })
         });
 
         // Add build stage for the Vue application.
@@ -100,7 +99,7 @@ export class CdkVueApplicationPipeline extends Stack {
                     }
                 }),
                 environment: {
-                    buildImage: LinuxBuildImage.AMAZON_LINUX_2_3
+                    buildImage: LinuxBuildImage.AMAZON_LINUX_2
                 }
             }),
             runOrder: 1
