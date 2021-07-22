@@ -106,7 +106,7 @@ export class CdkVueApplicationPipeline extends Stack {
         }));
 
         // Add approval stage before deploying the Vue application
-        const approvalBlueStage = cdkPipeline.addStage('ApprovalStage');
+        const approvalBlueStage = cdkPipeline.addStage('ApprovalBlue');
         approvalBlueStage.addActions(new ManualApprovalAction({
             actionName: 'ApproveDeploy',
             notifyEmails: [
@@ -162,7 +162,7 @@ export class CdkVueApplicationPipeline extends Stack {
         }));
 
         // Add approval stage before deploying the Vue application
-        const approvalGreenStage = cdkPipeline.addStage('ApprovalStage');
+        const approvalGreenStage = cdkPipeline.addStage('ApprovalGreen');
         approvalGreenStage.addActions(new ManualApprovalAction({
             actionName: 'ApproveDeploy',
             notifyEmails: [
