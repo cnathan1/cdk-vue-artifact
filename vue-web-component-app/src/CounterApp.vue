@@ -1,6 +1,6 @@
 <template>
   <div id="counter">
-    <h2>Counter App</h2>
+    <h2>Counter</h2>
     <div id="nav">
       <router-link to="/">Home</router-link>
     </div>
