@@ -106,8 +106,8 @@ export class CdkVueApplicationPipeline extends Stack {
         }));
 
         // Add approval stage before deploying the Vue application
-        const approvalStage = cdkPipeline.addStage('ApprovalStage');
-        approvalStage.addActions(new ManualApprovalAction({
+        const approvalBlueStage = cdkPipeline.addStage('ApprovalStage');
+        approvalBlueStage.addActions(new ManualApprovalAction({
             actionName: 'ApproveDeploy',
             notifyEmails: [
                 notificationsEmail.toString()
@@ -152,9 +152,31 @@ export class CdkVueApplicationPipeline extends Stack {
             defaultRootObject: 'index.html'
         });
 
-        // Add pipeline stage for deploying the Vue application to S3 target.
-        const deployStage = cdkPipeline.addStage('DeployStage');
-        deployStage.addActions(new S3DeployAction({
+        // Add pipeline stage for deploying the Vue application to the "Blue" S3 target.
+        const deployBlueStage = cdkPipeline.addStage('DeployBlue');
+        deployBlueStage.addActions(new S3DeployAction({
+            actionName: 'DeployVue',
+            bucket: deployBucket,
+            input: vueBuildArtifact,
+            objectKey: 'experiment-group'
+        }));
+
+        // Add approval stage before deploying the Vue application
+        const approvalGreenStage = cdkPipeline.addStage('ApprovalStage');
+        approvalGreenStage.addActions(new ManualApprovalAction({
+            actionName: 'ApproveDeploy',
+            notifyEmails: [
+                notificationsEmail.toString()
+            ],
+            additionalInformation: 'Approve Deployment to S3?',
+            externalEntityLink: `https://github.com/${githubRepoOwner}/${githubRepoName}`,
+            notificationTopic: pipelineNotificationTopic,
+            runOrder: 1
+        }));
+
+        // Add pipeline stage for deploying the Vue application to the "Green" S3 target.
+        const deployGreenStage = cdkPipeline.addStage('DeployGreen');
+        deployGreenStage.addActions(new S3DeployAction({
             actionName: 'DeployVue',
             bucket: deployBucket,
             input: vueBuildArtifact
