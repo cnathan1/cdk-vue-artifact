@@ -49,8 +49,8 @@ exports.handler = (event, context, callback) => {
         request.status = '302';
         request.statusDescription = 'Found';
         headers['location'] = [{
-            key: 'location',
-            value: '/blue/index.html',
+            key: 'Location',
+            value: 'blue/index.html',
         }];
     }
 
