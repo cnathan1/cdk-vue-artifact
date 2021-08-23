@@ -139,24 +139,39 @@ export class CdkVueApplicationPipeline extends Stack {
             runtime: Runtime.NODEJS_14_X
         });
 
+        const greenOrigin = new S3Origin(
+            deployGreenBucket,
+            {
+                originAccessIdentity: oai
+            }
+        );
+
         // Create CloudFront distribution with Vue deployment bucket as origin and AB Lambda@Edge function.
-        new Distribution(this, 'VueComponentDistribution', {
+        const cfDistro = new Distribution(this, 'VueComponentDistribution', {
             defaultBehavior: {
-                origin: new S3Origin(
-                    deployGreenBucket,
-                    {
-                        originAccessIdentity: oai
-                    }
-                ),
+                origin: greenOrigin,
                 viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 edgeLambdas: [{
-                    eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
+                    eventType: LambdaEdgeEventType.VIEWER_REQUEST,
                     functionVersion: edgeFunction
                 }]
-
             },
             defaultRootObject: 'index.html'
         });
+
+        const blueOrigin = new S3Origin(
+            deployGreenBucket,
+            {
+                originAccessIdentity: oai
+            }
+        );
+
+        cfDistro.addBehavior('/blue/*',
+            blueOrigin,
+            {
+                viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS
+            }
+        )
 
         // Add approval stage before deploying the Vue application
         const approvalBlueStage = cdkPipeline.addStage('ApprovalBlue');
