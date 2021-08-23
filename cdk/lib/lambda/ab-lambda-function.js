@@ -17,17 +17,17 @@ exports.handler = (event, context, callback) => {
     //Grab the 'origin' cookie if it's been set before
     if (headers.cookie) {
         for (let i = 0; i < headers.cookie.length; i++) {
-            if (headers.cookie[i].value.indexOf('origin=BLUE') >= 0) {
+            if (headers.cookie[i].value.indexOf('origin=blue') >= 0) {
                 console.log('Blue origin cookie found');
                 headers['host'] = [{key: 'host', value: blueOrigin}];
                 origin.s3.domainName = blueOrigin;
-                headers.cookie['origin'] = 'origin=BLUE';
+                headers.cookie['origin'] = 'origin=blue';
                 break;
-            } else if (headers.cookie[i].value.indexOf('origin=GREEN') >= 0) {
+            } else if (headers.cookie[i].value.indexOf('origin=green') >= 0) {
                 console.log('Green origin cookie found');
                 headers['host'] = [{key: 'host', value: greenOrigin}];
                 origin.s3.domainName = greenOrigin;
-                headers.cookie['origin'] = 'origin=GREEN';
+                headers.cookie['origin'] = 'origin=green';
                 break;
             }
         }
@@ -37,12 +37,12 @@ exports.handler = (event, context, callback) => {
         if (Math.random() > 0.75) {
             headers['host'] = [{key: 'host', value: blueOrigin}];
             origin.s3.domainName = blueOrigin;
-            headers.cookie = [{key: 'origin', value: 'origin=BLUE'}];
+            headers.cookie = [{key: 'origin', value: 'blue'}];
             console.log('Rolled the dice and the blue origin was selected!');
         } else {
             headers['host'] = [{key: 'host', value: greenOrigin}];
             origin.s3.domainName = greenOrigin;
-            headers.cookie = [{key: 'origin', value: 'origin=GREEN'}];
+            headers.cookie = [{key: 'origin', value: 'green'}];
             console.log('Rolled the dice and the green origin was selected!');
         }
     }
