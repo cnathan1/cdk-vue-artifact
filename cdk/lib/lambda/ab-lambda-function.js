@@ -73,10 +73,6 @@ exports.handler = (event, context, callback) => {
             key: 'Location',
             value: pathExperimentB,
         }];
-        headers['cache-control'] = [{
-            key: 'Cache-Control',
-            value: "max-age=3600"
-        }];
     }
 
     // Output the final request URI.
