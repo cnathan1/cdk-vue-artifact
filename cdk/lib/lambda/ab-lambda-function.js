@@ -2,105 +2,70 @@
 'use strict';
 
 exports.handler = (event, context, callback) => {
+    // Grab Viewer Request from the event
     const request = event.Records[0].cf.request;
     // Output the request to CloudWatch
     console.log('Lambda@Edge Request: %j', request);
     const headers = request.headers;
     const groupBUri = '/blue/'
 
-    // Do not process when already targeting group B.
-    if (request.uri.startsWith(groupBUri)) {
-        console.log('Ignoring request with URI: %s', request.uri);
-        if (request.uri === groupBUri) {
-            request.uri = `${groupBUri}/index.html`
-        }
-        callback(null, request);
-        return;
-    }
-
     // Name of cookie to check for. Application will be decided randomly when not present.
     const cookieExperimentA = 'X-Experiment-Name=A';
     const cookieExperimentB = 'X-Experiment-Name=B';
+    let response = {
+        status: '302',
+        statusDescription: 'Found'
+    };
 
-    // Check for cookie header to determine if experimental group has been previously selected
+    // Check for a cookie to determine if experimental group has been previously selected
     let selectedExperiment = cookieExperimentA;
+    let cookiePresent = false;
     if (headers.cookie) {
+        // Check for the experimental cookie and select the appropriate experiment when present.
         for (let i = 0; i < headers.cookie.length; i++) {
             if (headers.cookie[i].value.indexOf(cookieExperimentA) >= 0) {
                 console.log('Experiment A cookie found');
-                // Response for group A
-                console.log("Final response: %j", request);
-                callback(null, request);
+                selectedExperiment = cookieExperimentA;
+                cookiePresent = true;
                 break;
             } else if (headers.cookie[i].value.indexOf(cookieExperimentB) >= 0) {
                 console.log('Experiment B cookie found');
                 selectedExperiment = cookieExperimentB;
-                //Generate HTTP redirect response to experimental group.
-                console.log('Experimental group is selected: %s', selectedExperiment);
-                const response = {
-                    headers: {
-                        'location': [{
-                            key: 'Location',
-                            value: groupBUri
-                        }],
-                        'set-cookie': [{
-                            key: 'Set-Cookie',
-                            value: selectedExperiment
-                        }]
-                    },
-                    status: '302',
-                    statusDescription: 'Found'
-                };
-                callback(null, response);
+                cookiePresent = true;
+                break;
             }
-        }
-    } else {
-        // When there is no cookie, then randomly decide which app version will be used.
-        console.log('Experiment cookie has not been found. Throwing dice...');
-        if (Math.random() < 0.75) {
-            selectedExperiment = cookieExperimentA;
-            //Generate HTTP redirect response to experimental group B.
-            console.log('Experimental group is selected: %s', selectedExperiment);
-            const response = {
-                headers: {
-                    'location': [{
-                        key: 'Location',
-                        value: '/'
-                    }],
-                    'set-cookie': [{
-                        key: 'Set-Cookie',
-                        value: selectedExperiment
-                    }]
-                },
-                status: '302',
-                statusDescription: 'Found'
-            };
-            callback(null, response);
-        } else {
-            selectedExperiment = cookieExperimentB;
-            // Response for group A
-            console.log("Final response: %j", request);
-            callback(null, request);
         }
     }
 
-    if (selectedExperiment === cookieExperimentB) {
-        //Generate HTTP redirect response to experimental group B.
-        console.log('Experimental group is selected: %s', selectedExperiment);
-        const response = {
-            headers: {
-                'location': [{
-                    key: 'Location',
-                    value: groupBUri
-                }],
-                'set-cookie': [{
-                    key: 'Set-Cookie',
-                    value: selectedExperiment
-                }]
-            },
-            status: '302',
-            statusDescription: 'Found'
+    // When the cookie is not present then it needs to be set.
+    if (!cookiePresent) {
+        // When there is no cookie, then randomly decide which app version will be used.
+        console.log('Experiment cookie has not been found. Throwing dice...');
+        if (Math.random() < 0.75) {
+            console.log('Experiment A chosen');
+            selectedExperiment = cookieExperimentA;
+        } else {
+            console.log('Experiment B chosen');
+            selectedExperiment = cookieExperimentB;
+        }
+        // Set header to appropriate experiment.
+        response.headers = {
+            'location': [{
+                key: 'Location',
+                value: selectedExperiment === cookieExperimentB ? groupBUri : '/'
+            }],
+            'set-cookie': [{
+                key: 'Set-Cookie',
+                value: selectedExperiment
+            }]
         };
-        callback(null, response);
+    } else {
+        //Generate HTTP redirect response to experimental group B.
+        console.log('Experiment cookie has been found. Experimental group selected: %s', selectedExperiment);
+        response = request;
     }
+
+    // Display final response in logs
+    console.log("Final response: %j", response);
+    callback(null, response);
 };
