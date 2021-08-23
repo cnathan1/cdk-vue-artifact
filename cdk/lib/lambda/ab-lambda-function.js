@@ -34,7 +34,7 @@ exports.handler = (event, context, callback) => {
                     headers: {
                         'location': [{
                             key: 'Location',
-                            value: '/blue/index.html'
+                            value: '/blue'
                         }],
                         'set-cookie': [{
                             key: 'Set-Cookie',
@@ -58,7 +58,7 @@ exports.handler = (event, context, callback) => {
                 headers: {
                     'location': [{
                         key: 'Location',
-                        value: '/index.html'
+                        value: '/'
                     }],
                     'set-cookie': [{
                         key: 'Set-Cookie',
@@ -81,7 +81,7 @@ exports.handler = (event, context, callback) => {
             headers: {
                 'location': [{
                     key: 'Location',
-                    value: '/blue/index.html'
+                    value: '/blue'
                 }],
                 'set-cookie': [{
                     key: 'Set-Cookie',
