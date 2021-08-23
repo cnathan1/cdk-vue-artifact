@@ -9,37 +9,41 @@ exports.handler = (event, context, callback) => {
     const origin = request.origin;
 
     //Setup the two different origins
-    const blueOrigin = request.origin.s3.customHeaders['blue-origin'][0].value;
-    const greenOrigin = request.origin.s3.customHeaders['green-origin'][0].value;
+    const blueOrigin = origin.s3.domainName.replace('green', 'blue');
+    const greenOrigin = origin.s3.domainName;
 
 
     //Determine whether the user has visited before based on a cookie value
     //Grab the 'origin' cookie if it's been set before
     if (headers.cookie) {
         for (let i = 0; i < headers.cookie.length; i++) {
-            if (headers.cookie[i].value.indexOf('origin=A') >= 0) {
-                console.log('Origin A cookie found');
+            if (headers.cookie[i].value.indexOf('origin=BLUE') >= 0) {
+                console.log('Blue origin cookie found');
                 headers['host'] = [{key: 'host', value: blueOrigin}];
                 origin.s3.domainName = blueOrigin;
+                headers.cookie['origin'] = 'origin=BLUE';
                 break;
-            } else if (headers.cookie[i].value.indexOf('origin=B') >= 0) {
-                console.log('Origin B cookie found');
+            } else if (headers.cookie[i].value.indexOf('origin=GREEN') >= 0) {
+                console.log('Green origin cookie found');
                 headers['host'] = [{key: 'host', value: greenOrigin}];
                 origin.s3.domainName = greenOrigin;
+                headers.cookie['origin'] = 'origin=GREEN';
                 break;
             }
         }
     } else {
         //New visitor so no cookie set, roll the dice weight to origin A
         //Could also just choose to return here rather than modifying the request
-        if (Math.random() < 0.75) {
+        if (Math.random() > 0.75) {
             headers['host'] = [{key: 'host', value: blueOrigin}];
             origin.s3.domainName = blueOrigin;
-            console.log('Rolled the dice and origin A it is!');
+            headers.cookie = [{'origin': 'origin=BLUE'}];
+            console.log('Rolled the dice and the blue origin was selected!');
         } else {
             headers['host'] = [{key: 'host', value: greenOrigin}];
             origin.s3.domainName = greenOrigin;
-            console.log('Rolled the dice and origin B it is!');
+            headers.cookie = [{'origin': 'origin=GREEN'}];
+            console.log('Rolled the dice and the green origin was selected!');
         }
     }
 

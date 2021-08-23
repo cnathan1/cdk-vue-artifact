@@ -17,7 +17,6 @@ import {Distribution, LambdaEdgeEventType, OriginAccessIdentity, ViewerProtocolP
 import {S3Origin} from '@aws-cdk/aws-cloudfront-origins';
 import {EdgeFunction} from "@aws-cdk/aws-cloudfront/lib/experimental";
 import {Code, Runtime} from "@aws-cdk/aws-lambda";
-import {CfnDistribution} from "@aws-cdk/aws-cloudfront/lib/cloudfront.generated";
 
 export class CdkVueApplicationPipeline extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -140,18 +139,15 @@ export class CdkVueApplicationPipeline extends Stack {
             runtime: Runtime.NODEJS_14_X
         });
 
-        const cfOrigin = new S3Origin(
-            deployGreenBucket,
-            {
-                originAccessIdentity: oai
-            }
-        );
-        console.log('S3 Origin: %j', cfOrigin);
-
         // Create CloudFront distribution with Vue deployment bucket as origin and AB Lambda@Edge function.
         new Distribution(this, 'VueComponentDistribution', {
             defaultBehavior: {
-                origin: cfOrigin,
+                origin: new S3Origin(
+                    deployGreenBucket,
+                    {
+                        originAccessIdentity: oai
+                    }
+                ),
                 viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 edgeLambdas: [{
                     eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
@@ -161,21 +157,6 @@ export class CdkVueApplicationPipeline extends Stack {
             },
             defaultRootObject: 'index.html'
         });
-
-        // Add header for blue S3 origin to be used by A/B lambda
-        const originConfig = cfOrigin.bind(this, {originId: oai.originAccessIdentityName});
-        console.log('Origin config: %j', originConfig);
-        (originConfig.originProperty!.originCustomHeaders as Array<CfnDistribution.OriginCustomHeaderProperty>)
-            .push({
-                headerName: 'blue-origin',
-                headerValue: deployBlueBucket.bucketDomainName
-            });
-        // Add header for green S3 origin to be used by A/B lambda
-        (originConfig.originProperty!.originCustomHeaders as Array<CfnDistribution.OriginCustomHeaderProperty>)
-            .push({
-                headerName: 'green-origin',
-                headerValue: deployGreenBucket.bucketDomainName
-            });
 
         // Add approval stage before deploying the Vue application
         const approvalBlueStage = cdkPipeline.addStage('ApprovalBlue');
