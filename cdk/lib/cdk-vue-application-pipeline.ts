@@ -150,7 +150,7 @@ export class CdkVueApplicationPipeline extends Stack {
                 ),
                 viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 edgeLambdas: [{
-                    eventType: LambdaEdgeEventType.VIEWER_REQUEST,
+                    eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
                     functionVersion: edgeFunction
                 }]
 
