@@ -21,13 +21,11 @@ exports.handler = (event, context, callback) => {
                 console.log('Blue origin cookie found');
                 headers['host'] = [{key: 'host', value: blueOrigin}];
                 origin.s3.domainName = blueOrigin;
-                headers.cookie['origin'] = 'origin=blue';
                 break;
             } else if (headers.cookie[i].value.indexOf('origin=green') >= 0) {
                 console.log('Green origin cookie found');
                 headers['host'] = [{key: 'host', value: greenOrigin}];
                 origin.s3.domainName = greenOrigin;
-                headers.cookie['origin'] = 'origin=green';
                 break;
             }
         }
@@ -37,12 +35,12 @@ exports.handler = (event, context, callback) => {
         if (Math.random() > 0.75) {
             headers['host'] = [{key: 'host', value: blueOrigin}];
             origin.s3.domainName = blueOrigin;
-            headers.cookie = [{key: 'origin', value: 'blue'}];
+            headers.cookie = [{key: 'cookie', value: 'origin=blue;'}];
             console.log('Rolled the dice and the blue origin was selected!');
         } else {
             headers['host'] = [{key: 'host', value: greenOrigin}];
             origin.s3.domainName = greenOrigin;
-            headers.cookie = [{key: 'origin', value: 'green'}];
+            headers.cookie = [{key: 'cookie', value: 'origin=green;'}];
             console.log('Rolled the dice and the green origin was selected!');
         }
     }
