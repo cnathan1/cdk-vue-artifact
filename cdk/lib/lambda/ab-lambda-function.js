@@ -8,7 +8,7 @@ exports.handler = (event, context, callback) => {
     const headers = request.headers;
 
     // Do not process if this is not targeting the distribution root file.
-    if (request.uri !== "/" && request.uri !== "/index.html") {
+    if (request.uri.startsWith('/blue')) {
         console.log('Ignoring request with URI: %s', request.uri);
         callback(null, request);
         return;
@@ -57,10 +57,10 @@ exports.handler = (event, context, callback) => {
             console.log('Experiment cookie has not been found. Throwing dice...');
             if (Math.random() < 0.75) {
                 experimentUri = pathExperimentA;
-                headers.cookie = [{key: 'cookie', value: cookieExperimentA}]
+                // headers.cookie = [{key: 'cookie', value: cookieExperimentA}]
             } else {
                 experimentUri = pathExperimentB;
-                headers.cookie = [{key: 'cookie', value: cookieExperimentB}]
+                // headers.cookie = [{key: 'cookie', value: cookieExperimentB}]
             }
         }
     }
