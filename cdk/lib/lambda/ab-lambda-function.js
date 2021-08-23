@@ -7,7 +7,7 @@ exports.handler = (event, context, callback) => {
     // Output the request to CloudWatch
     console.log('Lambda@Edge Request: %j', request);
     const headers = request.headers;
-    const groupBUri = '/blue/index.html'
+    const groupBUri = '/blue/index.html';
 
     // Name of cookie to check for. Application will be decided randomly when not present.
     const cookieExperimentA = 'X-Experiment-Name=A';
@@ -62,7 +62,17 @@ exports.handler = (event, context, callback) => {
     } else {
         //Generate HTTP redirect response to experimental group B.
         console.log('Experiment cookie has been found. Experimental group selected: %s', selectedExperiment);
-        response = request;
+        if (selectedExperiment === cookieExperimentB && request.uri === '/') {
+            // Redirect to blue group.
+            response.headers = {
+                'location': [{
+                    key: 'Location',
+                    value: selectedExperiment === groupBUri
+                }]
+            };
+        } else {
+            response = request;
+        }
     }
 
     // Display final response in logs
