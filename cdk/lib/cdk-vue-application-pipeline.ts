@@ -105,60 +105,72 @@ export class CdkVueApplicationPipeline extends Stack {
             runOrder: 1
         }));
 
-        // Add approval stage before deploying the Vue application
-        const approvalBlueStage = cdkPipeline.addStage('ApprovalBlue');
-        approvalBlueStage.addActions(new ManualApprovalAction({
-            actionName: 'ApproveDeploy',
-            notifyEmails: [
-                notificationsEmail.toString()
-            ],
-            additionalInformation: 'Approve Deployment to S3?',
-            externalEntityLink: `https://github.com/${githubRepoOwner}/${githubRepoName}`,
-            notificationTopic: pipelineNotificationTopic,
-            runOrder: 1
-        }));
+        // Creating S3 bucket to deploy the Vue application to.
+        const deployBlueBucket = new Bucket(this, 'BlueVueComponentsBucket', {
+            versioned: false,
+            bucketName: `blue-vue-component-bucket-${this.region}-${this.account}`,
+            publicReadAccess: false,
+            removalPolicy: RemovalPolicy.DESTROY
+        });
 
         // Creating S3 bucket to deploy the Vue application to.
-        const deployBucket = new Bucket(this, 'VueComponentsBucket', {
+        const deployGreenBucket = new Bucket(this, 'GreenVueComponentsBucket', {
             versioned: false,
-            bucketName: `vue-component-bucket-${this.region}-${this.account}`,
+            bucketName: `green-vue-component-bucket-${this.region}-${this.account}`,
             publicReadAccess: false,
             removalPolicy: RemovalPolicy.DESTROY
         });
 
         // Create CloudFront distribution OAI for the S3 bucket containing the Vue application.
         const oai = new OriginAccessIdentity(this, 'OriginAccessIdentity', {comment: "Origin Access Identity for Origin S3 bucket"});
-        deployBucket.grantRead(oai);
+        deployBlueBucket.grantRead(oai);
+        deployGreenBucket.grantRead(oai);
 
         // Create Lambda@Edge function for A/B testing different application deployments.
         const edgeFunction = new EdgeFunction(this, 'ABEdgeFunction', {
             code: Code.fromAsset("lib/lambda"),
             handler: "ab-lambda-function.handler",
-            runtime: Runtime.NODEJS_14_X
+            runtime: Runtime.NODEJS_14_X,
+            environment: {
+                BLUE_ORIGIN: deployBlueBucket.bucketDomainName,
+                GREEN_ORIGIN: deployGreenBucket.bucketDomainName
+            }
         });
 
         // Create CloudFront distribution with Vue deployment bucket as origin and AB Lambda@Edge function.
         new Distribution(this, 'VueComponentDistribution', {
             defaultBehavior: {
                 origin: new S3Origin(
-                    deployBucket,
+                    deployGreenBucket,
                     {originAccessIdentity: oai}
                 ),
                 edgeLambdas: [{
-                    eventType: LambdaEdgeEventType.VIEWER_REQUEST,
+                    eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
                     functionVersion: edgeFunction
                 }]
             },
             defaultRootObject: 'index.html'
         });
 
+        // Add approval stage before deploying the Vue application
+        const approvalBlueStage = cdkPipeline.addStage('ApprovalBlue');
+        approvalBlueStage.addActions(new ManualApprovalAction({
+            actionName: 'ApproveBlueDeploy',
+            notifyEmails: [
+                notificationsEmail.toString()
+            ],
+            additionalInformation: 'Approve Deployment to S3 for the blue deployment group?',
+            externalEntityLink: `https://github.com/${githubRepoOwner}/${githubRepoName}`,
+            notificationTopic: pipelineNotificationTopic,
+            runOrder: 1
+        }));
+
         // Add pipeline stage for deploying the Vue application to the "Blue" S3 target.
         const deployBlueStage = cdkPipeline.addStage('DeployBlue');
         deployBlueStage.addActions(new S3DeployAction({
             actionName: 'DeployVue',
-            bucket: deployBucket,
-            input: vueBuildArtifact,
-            objectKey: 'experiment-group'
+            bucket: deployBlueBucket,
+            input: vueBuildArtifact
         }));
 
         // Add approval stage before deploying the Vue application
@@ -168,7 +180,7 @@ export class CdkVueApplicationPipeline extends Stack {
             notifyEmails: [
                 notificationsEmail.toString()
             ],
-            additionalInformation: 'Approve Deployment to S3?',
+            additionalInformation: 'Approve Deployment to S3 for the green deployment group?',
             externalEntityLink: `https://github.com/${githubRepoOwner}/${githubRepoName}`,
             notificationTopic: pipelineNotificationTopic,
             runOrder: 1
@@ -178,7 +190,7 @@ export class CdkVueApplicationPipeline extends Stack {
         const deployGreenStage = cdkPipeline.addStage('DeployGreen');
         deployGreenStage.addActions(new S3DeployAction({
             actionName: 'DeployVue',
-            bucket: deployBucket,
+            bucket: deployGreenBucket,
             input: vueBuildArtifact
         }));
 
