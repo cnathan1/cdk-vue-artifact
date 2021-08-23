@@ -7,7 +7,7 @@ exports.handler = (event, context, callback) => {
     // Output the request to CloudWatch
     console.log('Lambda@Edge Request: %j', request);
     const headers = request.headers;
-    const groupBUri = '/blue/'
+    const groupBUri = '/blue/index.html'
 
     // Name of cookie to check for. Application will be decided randomly when not present.
     const cookieExperimentA = 'X-Experiment-Name=A';
