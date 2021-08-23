@@ -51,20 +51,36 @@ exports.handler = (event, context, callback) => {
                 break;
             }
         }
-    }
-
-    // When there is no cookie, then randomly decide which app version will be used.
-    if (!experimentUri) {
-        console.log('Experiment cookie has not been found. Throwing dice...');
-        if (Math.random() < 0.75) {
-            experimentUri = pathExperimentA;
-        } else {
-            experimentUri = pathExperimentB;
+    } else {
+        // When there is no cookie, then randomly decide which app version will be used.
+        if (!experimentUri) {
+            console.log('Experiment cookie has not been found. Throwing dice...');
+            if (Math.random() < 0.75) {
+                experimentUri = pathExperimentA;
+                headers.cookie = [{key: 'cookie', value: cookieExperimentA}]
+            } else {
+                experimentUri = pathExperimentB;
+                headers.cookie = [{key: 'cookie', value: cookieExperimentB}]
+            }
         }
     }
 
+    if (experimentUri === pathExperimentB) {
+        //Generate HTTP redirect response to experimental group.
+        request.status = '301';
+        request.statusDescription = 'Moved Permanently';
+        headers['location'] = [{
+            key: 'Location',
+            value: pathExperimentB,
+        }];
+        headers['cache-control'] = [{
+            key: 'Cache-Control',
+            value: "max-age=3600"
+        }];
+    }
+
     // Output the final request URI.
-    request.uri = experimentUri;
-    console.log(`Request uri set to "${request.uri}"`);
+    console.log(`Request uri set to "${experimentUri}"`);
+    console.log("Final response: %j", request);
     callback(null, request);
 };

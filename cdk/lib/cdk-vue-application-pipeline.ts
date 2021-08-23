@@ -192,8 +192,7 @@ export class CdkVueApplicationPipeline extends Stack {
         deployBlueStage.addActions(new S3DeployAction({
             actionName: 'DeployVue',
             bucket: deployBlueBucket,
-            input: vueBuildArtifact,
-            objectKey: 'blue'
+            input: vueBuildArtifact
         }));
 
         // Add approval stage before deploying the Vue application
