@@ -6,10 +6,14 @@ exports.handler = (event, context, callback) => {
     // Output the request to CloudWatch
     console.log('Lambda@Edge Request: %j', request);
     const headers = request.headers;
+    const groupBUri = '/blue'
 
     // Do not process when already targeting group B.
-    if (request.uri.startsWith('/blue')) {
+    if (request.uri.startsWith(groupBUri)) {
         console.log('Ignoring request with URI: %s', request.uri);
+        if (request.uri === groupBUri) {
+            request.uri = `${groupBUri}/index.html`
+        }
         callback(null, request);
         return;
     }
@@ -34,7 +38,7 @@ exports.handler = (event, context, callback) => {
                     headers: {
                         'location': [{
                             key: 'Location',
-                            value: '/blue'
+                            value: groupBUri
                         }],
                         'set-cookie': [{
                             key: 'Set-Cookie',
@@ -81,7 +85,7 @@ exports.handler = (event, context, callback) => {
             headers: {
                 'location': [{
                     key: 'Location',
-                    value: '/blue'
+                    value: groupBUri
                 }],
                 'set-cookie': [{
                     key: 'Set-Cookie',
