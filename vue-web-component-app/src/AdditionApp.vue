@@ -21,6 +21,11 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Addition',
     component: Addition
+  },
+  {
+    path: '/blue/',
+    name: 'Addition',
+    component: Addition
   }
 ]
 
