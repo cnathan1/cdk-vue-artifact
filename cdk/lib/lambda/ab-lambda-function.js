@@ -36,15 +36,21 @@ exports.handler = (event, context, callback) => {
         // When there is no cookie, then randomly decide which app version will be used.
         console.log('Experiment cookie has not been found. Throwing dice...');
         if (Math.random() < 0.75) {
-            headers.cookie = [{key: 'cookie', value: cookieExperimentA}]
+            headers['set-cookie'] = [{key: 'set-cookie', value: cookieExperimentA}]
         } else {
-            headers.cookie = [{key: 'cookie', value: cookieExperimentB}]
+            headers['set-cookie'] = [{key: 'set-cookie', value: cookieExperimentB}]
         }
     }
 
     if (selectedExperiment === cookieExperimentB) {
-        //Change origin to experimental group.
+        //Generate HTTP redirect response to experimental group.
         console.log('Experimental group is selected: %s', selectedExperiment);
+        request.status = '302';
+        request.statusDescription = 'Found';
+        headers['location'] = [{
+            key: 'location',
+            value: '/blue/index.html',
+        }];
     }
 
     // Output the final request.
