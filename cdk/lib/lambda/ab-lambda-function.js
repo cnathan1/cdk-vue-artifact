@@ -37,12 +37,12 @@ exports.handler = (event, context, callback) => {
         if (Math.random() > 0.75) {
             headers['host'] = [{key: 'host', value: blueOrigin}];
             origin.s3.domainName = blueOrigin;
-            headers.cookie = [{'origin': 'origin=BLUE'}];
+            headers.cookie = [{key: 'origin', value: 'origin=BLUE'}];
             console.log('Rolled the dice and the blue origin was selected!');
         } else {
             headers['host'] = [{key: 'host', value: greenOrigin}];
             origin.s3.domainName = greenOrigin;
-            headers.cookie = [{'origin': 'origin=GREEN'}];
+            headers.cookie = [{key: 'origin', value: 'origin=GREEN'}];
             console.log('Rolled the dice and the green origin was selected!');
         }
     }
