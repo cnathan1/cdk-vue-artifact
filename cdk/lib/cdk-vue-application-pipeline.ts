@@ -162,8 +162,7 @@ export class CdkVueApplicationPipeline extends Stack {
         const blueOrigin = new S3Origin(
             deployBlueBucket,
             {
-                originAccessIdentity: oai,
-                originPath: '/blue'
+                originAccessIdentity: oai
             }
         );
 
