@@ -36,10 +36,11 @@ exports.handler = (event, context, callback) => {
         // When there is no cookie, then randomly decide which app version will be used.
         console.log('Experiment cookie has not been found. Throwing dice...');
         if (Math.random() < 0.75) {
-            headers['set-cookie'] = [{key: 'set-cookie', value: cookieExperimentA}]
+            selectedExperiment = cookieExperimentA;
         } else {
-            headers['set-cookie'] = [{key: 'set-cookie', value: cookieExperimentB}]
+            selectedExperiment = cookieExperimentB;
         }
+        headers['set-cookie'] = [{key: 'set-cookie', value: selectedExperiment}]
     }
 
     if (selectedExperiment === cookieExperimentB) {
