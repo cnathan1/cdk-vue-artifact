@@ -5,12 +5,19 @@ import {Bucket} from '@aws-cdk/aws-s3';
 import {Artifact} from '@aws-cdk/aws-codepipeline'
 import {BuildSpec, LinuxBuildImage, PipelineProject} from '@aws-cdk/aws-codebuild'
 import {Topic} from '@aws-cdk/aws-sns'
-import {CodeBuildAction, GitHubSourceAction, GitHubTrigger, ManualApprovalAction, S3DeployAction} from '@aws-cdk/aws-codepipeline-actions'
+import {
+    CodeBuildAction,
+    GitHubSourceAction,
+    GitHubTrigger,
+    ManualApprovalAction,
+    S3DeployAction
+} from '@aws-cdk/aws-codepipeline-actions'
 import {CdkPipeline, SimpleSynthAction} from '@aws-cdk/pipelines';
-import {Distribution, LambdaEdgeEventType, OriginAccessIdentity} from '@aws-cdk/aws-cloudfront';
+import {Distribution, LambdaEdgeEventType, OriginAccessIdentity, ViewerProtocolPolicy} from '@aws-cdk/aws-cloudfront';
 import {S3Origin} from '@aws-cdk/aws-cloudfront-origins';
 import {EdgeFunction} from "@aws-cdk/aws-cloudfront/lib/experimental";
 import {Code, Runtime} from "@aws-cdk/aws-lambda";
+import {CfnDistribution} from "@aws-cdk/aws-cloudfront/lib/cloudfront.generated";
 
 export class CdkVueApplicationPipeline extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -130,26 +137,43 @@ export class CdkVueApplicationPipeline extends Stack {
         const edgeFunction = new EdgeFunction(this, 'ABEdgeFunction', {
             code: Code.fromAsset("lib/lambda"),
             handler: "ab-lambda-function.handler",
-            runtime: Runtime.NODEJS_14_X,
-            environment: {
-                BLUE_ORIGIN: deployBlueBucket.bucketDomainName,
-                GREEN_ORIGIN: deployGreenBucket.bucketDomainName
-            }
+            runtime: Runtime.NODEJS_14_X
         });
+
+        const cfOrigin = new S3Origin(
+            deployGreenBucket,
+            {
+                originAccessIdentity: oai
+            }
+        );
 
         // Create CloudFront distribution with Vue deployment bucket as origin and AB Lambda@Edge function.
         new Distribution(this, 'VueComponentDistribution', {
             defaultBehavior: {
-                origin: new S3Origin(
-                    deployGreenBucket,
-                    {originAccessIdentity: oai}
-                ),
+                origin: cfOrigin,
+                viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 edgeLambdas: [{
                     eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
                     functionVersion: edgeFunction
                 }]
+
             },
             defaultRootObject: 'index.html'
+        });
+
+        // Add header for blue S3 origin to be used by A/B lambda
+        (cfOrigin.bind(this, {originId: oai.originAccessIdentityName})
+                .originProperty!.originCustomHeaders as Array<CfnDistribution.OriginCustomHeaderProperty>
+        ).push({
+            headerName: 'blue-origin',
+            headerValue: deployBlueBucket.bucketDomainName
+        });
+        // Add header for green S3 origin to be used by A/B lambda
+        (cfOrigin.bind(this, {originId: oai.originAccessIdentityName})
+                .originProperty!.originCustomHeaders as Array<CfnDistribution.OriginCustomHeaderProperty>
+        ).push({
+            headerName: 'green-origin',
+            headerValue: deployGreenBucket.bucketDomainName
         });
 
         // Add approval stage before deploying the Vue application
