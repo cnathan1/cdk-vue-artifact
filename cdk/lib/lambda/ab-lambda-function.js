@@ -28,6 +28,9 @@ exports.handler = (event, context, callback) => {
         for (let i = 0; i < headers.cookie.length; i++) {
             if (headers.cookie[i].value.indexOf(cookieExperimentA) >= 0) {
                 console.log('Experiment A cookie found');
+                // Response for group A
+                console.log("Final response: %j", request);
+                callback(null, request);
                 break;
             } else if (headers.cookie[i].value.indexOf(cookieExperimentB) >= 0) {
                 console.log('Experiment B cookie found');
@@ -75,6 +78,9 @@ exports.handler = (event, context, callback) => {
             callback(null, response);
         } else {
             selectedExperiment = cookieExperimentB;
+            // Response for group A
+            console.log("Final response: %j", request);
+            callback(null, request);
         }
     }
 
@@ -97,8 +103,4 @@ exports.handler = (event, context, callback) => {
         };
         callback(null, response);
     }
-
-    // Response for group A
-    console.log("Final response: %j", request);
-    callback(null, request);
 };
