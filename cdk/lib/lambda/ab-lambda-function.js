@@ -67,7 +67,7 @@ exports.handler = (event, context, callback) => {
             response.headers = {
                 'location': [{
                     key: 'Location',
-                    value: selectedExperiment === groupBUri
+                    value: groupBUri
                 }]
             };
         } else {
