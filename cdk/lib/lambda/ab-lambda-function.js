@@ -44,6 +44,7 @@ exports.handler = (event, context, callback) => {
             console.log('Rolled the dice and the green origin was selected!');
         }
     }
+    console.log('Lambda@Edge Response: %j', request);
 
     callback(null, request);
 };
