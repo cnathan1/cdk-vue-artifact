@@ -160,9 +160,10 @@ export class CdkVueApplicationPipeline extends Stack {
         });
 
         const blueOrigin = new S3Origin(
-            deployGreenBucket,
+            deployBlueBucket,
             {
-                originAccessIdentity: oai
+                originAccessIdentity: oai,
+                originPath: '/blue'
             }
         );
 
