@@ -212,7 +212,8 @@ export class CdkVueApplicationPipeline extends Stack {
         deployGreenStage.addActions(new S3DeployAction({
             actionName: 'DeployVue',
             bucket: deployGreenBucket,
-            input: vueBuildArtifact
+            input: vueBuildArtifact,
+            objectKey: 'blue'
         }));
 
     }
