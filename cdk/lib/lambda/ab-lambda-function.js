@@ -6,7 +6,7 @@ exports.handler = (event, context, callback) => {
     // Output the request to CloudWatch
     console.log('Lambda@Edge Request: %j', request);
     const headers = request.headers;
-    const groupBUri = '/blue'
+    const groupBUri = '/blue/'
 
     // Do not process when already targeting group B.
     if (request.uri.startsWith(groupBUri)) {
