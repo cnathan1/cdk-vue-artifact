@@ -7,7 +7,7 @@ exports.handler = (event, context, callback) => {
     console.log('Lambda@Edge Request: %j', request);
     const headers = request.headers;
 
-    // Do not process if this is not targeting the distribution root file.
+    // Do not process when already targeting group B.
     if (request.uri.startsWith('/blue')) {
         console.log('Ignoring request with URI: %s', request.uri);
         callback(null, request);
@@ -19,17 +19,32 @@ exports.handler = (event, context, callback) => {
     const cookieExperimentB = 'X-Experiment-Name=B';
 
     // Check for cookie header to determine if experimental group has been previously selected
-    let selectedExperiment;
+    let selectedExperiment = cookieExperimentA;
     if (headers.cookie) {
         for (let i = 0; i < headers.cookie.length; i++) {
             if (headers.cookie[i].value.indexOf(cookieExperimentA) >= 0) {
                 console.log('Experiment A cookie found');
-                selectedExperiment = cookieExperimentA;
                 break;
             } else if (headers.cookie[i].value.indexOf(cookieExperimentB) >= 0) {
                 console.log('Experiment B cookie found');
                 selectedExperiment = cookieExperimentB;
-                break;
+                //Generate HTTP redirect response to experimental group.
+                console.log('Experimental group is selected: %s', selectedExperiment);
+                const response = {
+                    headers: {
+                        'location': [{
+                            key: 'Location',
+                            value: '/blue/index.html'
+                        }],
+                        'set-cookie': [{
+                            key: 'Set-Cookie',
+                            value: selectedExperiment
+                        }]
+                    },
+                    status: '302',
+                    statusDescription: 'Found'
+                };
+                callback(null, response);
             }
         }
     } else {
@@ -37,24 +52,49 @@ exports.handler = (event, context, callback) => {
         console.log('Experiment cookie has not been found. Throwing dice...');
         if (Math.random() < 0.75) {
             selectedExperiment = cookieExperimentA;
+            //Generate HTTP redirect response to experimental group B.
+            console.log('Experimental group is selected: %s', selectedExperiment);
+            const response = {
+                headers: {
+                    'location': [{
+                        key: 'Location',
+                        value: '/index.html'
+                    }],
+                    'set-cookie': [{
+                        key: 'Set-Cookie',
+                        value: selectedExperiment
+                    }]
+                },
+                status: '302',
+                statusDescription: 'Found'
+            };
+            callback(null, response);
         } else {
             selectedExperiment = cookieExperimentB;
         }
-        headers['set-cookie'] = [{key: 'set-cookie', value: selectedExperiment}]
     }
 
     if (selectedExperiment === cookieExperimentB) {
-        //Generate HTTP redirect response to experimental group.
+        //Generate HTTP redirect response to experimental group B.
         console.log('Experimental group is selected: %s', selectedExperiment);
-        request.status = '302';
-        request.statusDescription = 'Found';
-        headers['location'] = [{
-            key: 'Location',
-            value: 'blue/index.html',
-        }];
+        const response = {
+            headers: {
+                'location': [{
+                    key: 'Location',
+                    value: '/blue/index.html'
+                }],
+                'set-cookie': [{
+                    key: 'Set-Cookie',
+                    value: selectedExperiment
+                }]
+            },
+            status: '302',
+            statusDescription: 'Found'
+        };
+        callback(null, response);
     }
 
-    // Output the final request.
+    // Response for group A
     console.log("Final response: %j", request);
     callback(null, request);
 };
