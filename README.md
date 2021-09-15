@@ -81,7 +81,7 @@ Setting up
 2. After confirming all information is correct, leave the encryption key as default and select “Next”. NOTE: This information will be picked by CloudFormation/CDK when the stack is deployed.
 
 [Image: image.png]
-1. Set the secret name to “GitHubSecrets” and optionally enter a description and tags for this secret. Select “Next” when you are done.
+1. Set the secret name to “GithubSecrets” and optionally enter a description and tags for this secret. Select “Next” when you are done.
 
 [Image: image.png]
 1. Leave “Disable automatic rotation” selected on the next screen and select “Next”. Finally, review the secret and select “Store” on the final page when you are ready.

@@ -23,11 +23,11 @@ export class CdkVueApplicationPipeline extends Stack {
         super(scope, id, props);
 
         // Retrieve secrets for configuring the GitHub repository webhook and pipeline notifications email.
-        const githubRepoOwner = SecretValue.secretsManager('GitHubSecrets', {jsonField: 'repo-owner'});
-        const githubRepoName = SecretValue.secretsManager('GitHubSecrets', {jsonField: 'repo-name'});
-        const githubRepoBranch = SecretValue.secretsManager('GitHubSecrets', {jsonField: 'repo-branch'});
-        const githubRepoToken = SecretValue.secretsManager('GitHubSecrets', {jsonField: 'repo-token'});
-        const notificationsEmail = SecretValue.secretsManager('GitHubSecrets', {jsonField: 'notifications-email'});
+        const githubRepoOwner = SecretValue.secretsManager('GithubSecrets', {jsonField: 'repo-owner'});
+        const githubRepoName = SecretValue.secretsManager('GithubSecrets', {jsonField: 'repo-name'});
+        const githubRepoBranch = SecretValue.secretsManager('GithubSecrets', {jsonField: 'repo-branch'});
+        const githubRepoToken = SecretValue.secretsManager('GithubSecrets', {jsonField: 'repo-token'});
+        const notificationsEmail = SecretValue.secretsManager('GithubSecrets', {jsonField: 'notifications-email'});
 
         // Pipeline artifacts to store repository source and build stage outputs.
         const pipelineArtifact = new Artifact('RepoSource');
